@@ -17,16 +17,16 @@ namespace AMLBS.Utils
             amlsb.DefineNativeOperator("/", 2, (l, r) => l / r);
             amlsb.DefineNativeOperator("^", 3, (l, r) => Math.Pow(l, r));
 
-            amlsb.DefineNativeOperator("==", 2, (l, r) => Convert.ToInt32(l == r));
-            amlsb.DefineNativeOperator("!=", 2, (l, r) => Convert.ToInt32(l != r));
+            amlsb.DefineNativeOperator("==", 3, (l, r) => Convert.ToInt32(l == r));
+            amlsb.DefineNativeOperator("!=", 3, (l, r) => Convert.ToInt32(l != r));
 
-            amlsb.DefineNativeOperator(">", 2, (l, r) => Convert.ToInt32(l > r));
-            amlsb.DefineNativeOperator(">=", 2, (l, r) => Convert.ToInt32(l >= r));
+            amlsb.DefineNativeOperator(">", 3, (l, r) => Convert.ToInt32(l > r));
+            amlsb.DefineNativeOperator(">=", 3, (l, r) => Convert.ToInt32(l >= r));
 
-            amlsb.DefineNativeOperator("<", 2, (l, r) => Convert.ToInt32(l < r));
-            amlsb.DefineNativeOperator("<=", 2, (l, r) => Convert.ToInt32(l <= r));
+            amlsb.DefineNativeOperator("<", 3, (l, r) => Convert.ToInt32(l < r));
+            amlsb.DefineNativeOperator("<=", 3, (l, r) => Convert.ToInt32(l <= r));
 
-            amlsb.DefineNativeOperator("&&", 1, (l, r) =>
+            amlsb.DefineNativeOperator("&&", 2, (l, r) =>
             {
                 var boolL = Convert.ToBoolean(l);
                 var boolR = Convert.ToBoolean(r);
