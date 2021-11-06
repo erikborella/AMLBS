@@ -20,9 +20,16 @@ namespace AMLBS.ConsoleApp
             {
                 while (true)
                 {
-                    Console.Write(">");
-                    string command = Console.ReadLine();
-                    Console.WriteLine(amlbs.Execute(command));
+                    try
+                    {
+                        Console.Write(">");
+                        string command = Console.ReadLine();
+                        Console.WriteLine(amlbs.Execute(command));
+                    } catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+                   
                 }
             }
         }
