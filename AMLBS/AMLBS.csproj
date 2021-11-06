@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Utils\AMLBSstd.cs~RF14c1b3ec.TMP" />
+  </ItemGroup>
+
+</Project>
