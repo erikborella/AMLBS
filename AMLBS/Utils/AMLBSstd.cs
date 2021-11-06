@@ -23,7 +23,7 @@ namespace AMLBS.Utils
             amlsb.DefineNativeOperator(">", 2, (l, r) => Convert.ToInt32(l > r));
             amlsb.DefineNativeOperator(">=", 2, (l, r) => Convert.ToInt32(l >= r));
 
-            amlsb.DefineNativeOperator("<", 2, (l, r) => Convert.ToInt32(l > r));
+            amlsb.DefineNativeOperator("<", 2, (l, r) => Convert.ToInt32(l < r));
             amlsb.DefineNativeOperator("<=", 2, (l, r) => Convert.ToInt32(l <= r));
 
             amlsb.DefineNativeOperator("&&", 1, (l, r) =>
