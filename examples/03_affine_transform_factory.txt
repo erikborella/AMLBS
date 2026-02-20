@@ -1,0 +1,7 @@
+define function affine(a, b, x) = a * x + b;
+define function makeLinear(a, b) = closure(ref(affine), a, b);
+
+define const scale2AndShift3 = makeLinear(2, 3);
+define const scale5AndShiftMinus1 = makeLinear(5, -1);
+
+call(scale2AndShift3, 10) + call(scale5AndShiftMinus1, 4)

@@ -1,10 +1,6 @@
-﻿using AMLBS.Expressions;
-using AMLBS.Utils;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AMLBS.Functions
 {
@@ -106,48 +102,73 @@ namespace AMLBS.Functions
 
             if (funName == "if")
                 return EvalIf(rtokens, amlbs);
-            else if (amlbs.functions.ContainsKey(funName))
-                return EvalAMLBSFunction(funName, rtokens, amlbs);
-            else if (amlbs.nativeFunctions.ContainsKey(funName))
-                return EvalNativeFunction(funName, rtokens, amlbs);
+            else if (funName == "ref")
+                return EvalRef(rtokens, amlbs);
+            else if (funName == "call")
+                return EvalCall(rtokens, amlbs);
+            else if (funName == "closure")
+                return EvalClosure(rtokens, amlbs);
+            else if (amlbs.functions.ContainsKey(funName)
+                || amlbs.nativeFunctions.ContainsKey(funName))
+                return EvalKnownFunction(funName, rtokens, amlbs);
             else
                 throw new Exception($"Function name {funName} not defined");
             
         }
 
-        private static double EvalAMLBSFunction(string funName,
+        private static double EvalKnownFunction(string funName,
                                                 Queue<Token> rtokens,
                                                 AMLBS amlbs)
         {
-            FunctionDefinition functionDefinition = amlbs.functions[funName];
-
             List<double> parameters = ExtractFunctionEvalParameters(rtokens, amlbs);
-
-            if (parameters.Count != functionDefinition.ParametersCount)
-                throw new Exception($"function {funName} " +
-                    $"expected {functionDefinition.ParametersCount} parameter " +
-                    $"but found {parameters.Count}");
-
-            List<Token> functionExpression = new(functionDefinition.tokens);
-            ExpressionParametersReplacer.ReplaceEvalParameters(parameters, functionExpression);
-
-            return (double)amlbs.Eval(functionExpression);
+            return amlbs.InvokeFunction(funName, parameters);
         }
 
-        private static double EvalNativeFunction(string funName,
-                                                 Queue<Token> rtokens,
-                                                 AMLBS amlbs)
+        private static double EvalRef(Queue<Token> rtokens,
+                                      AMLBS amlbs)
         {
-            NativeFunctionDefinition nativeDefinition = amlbs.nativeFunctions[funName];
+            var parameters = ExtractExpressionParameters(rtokens);
 
+            if (parameters.Count != 1)
+                throw new Exception("ref expected 1 parameter");
+
+            List<Token> functionNameExpression = parameters[0];
+
+            if (functionNameExpression.Count != 1
+                || functionNameExpression[0].Type != TokenTypeEnum.WORD)
+                throw new Exception("ref expected a function name");
+
+            string functionName = (string)functionNameExpression[0].Value;
+
+            return amlbs.CreateFunctionReference(functionName);
+        }
+
+        private static double EvalCall(Queue<Token> rtokens,
+                                       AMLBS amlbs)
+        {
             List<double> parameters = ExtractFunctionEvalParameters(rtokens, amlbs);
 
-            if (parameters.Count != nativeDefinition.ParametersCount)
-                throw new Exception($"native function {funName} " +
-                    $"expected {nativeDefinition.ParametersCount} parameter " +
-                    $"but found {parameters.Count}");
+            if (parameters.Count == 0)
+                throw new Exception("call expected at least 1 parameter");
 
-            return nativeDefinition.NativeCall(parameters.ToArray());
+            double functionReference = parameters[0];
+            List<double> functionParameters = parameters.Skip(1).ToList();
+
+            return amlbs.InvokeFunctionReference(functionReference, functionParameters);
+        }
+
+        private static double EvalClosure(Queue<Token> rtokens,
+                                          AMLBS amlbs)
+        {
+            List<double> parameters = ExtractFunctionEvalParameters(rtokens, amlbs);
+
+            if (parameters.Count == 0)
+                throw new Exception("closure expected at least 1 parameter");
+
+            double functionReference = parameters[0];
+            List<double> capturedParameters = parameters.Skip(1).ToList();
+
+            return amlbs.CreateClosure(functionReference, capturedParameters);
         }
 
         private static double EvalIf(Queue<Token> rtokens,

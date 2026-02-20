@@ -1,0 +1,12 @@
+define function pow(base, exp) =
+  if(exp == 0,
+    1,
+    base * pow(base, exp - 1)
+  );
+
+define function makePower(base) = closure(ref(pow), base);
+
+define const square = makePower(2);
+define const cube = makePower(3);
+
+call(square, 10) + call(cube, 6)

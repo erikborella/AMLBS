@@ -1,0 +1,12 @@
+define function iterateN(fn, x, n) =
+  if(n == 0,
+    x,
+    iterateN(fn, call(fn, x), n - 1)
+  );
+
+define function gdStep(lr, x) = x - lr * (2 * (x - 3));
+define function makeGD(lr) = closure(ref(gdStep), lr);
+
+define const step = makeGD(0.2);
+
+iterateN(step, 20, 25)
