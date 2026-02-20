@@ -1,0 +1,12 @@
+define function iterateN(fn, x, n) =
+  if(n == 0,
+    x,
+    iterateN(fn, call(fn, x), n - 1)
+  );
+
+define function newtonStep(target, x) = x - ((x * x - target) / (2 * x));
+define function makeNewton(target) = closure(ref(newtonStep), target);
+
+define const sqrt2Step = makeNewton(2);
+
+iterateN(sqrt2Step, 1, 8)

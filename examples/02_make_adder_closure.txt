@@ -1,0 +1,7 @@
+define function add(a, b) = a + b;
+define function makeAdder(base) = closure(ref(add), base);
+
+define const add10 = makeAdder(10);
+define const add25 = makeAdder(25);
+
+call(add10, 7) + call(add25, 3)

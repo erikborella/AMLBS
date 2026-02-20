@@ -1,0 +1,4 @@
+define function applyTwice(fn, x) = call(fn, call(fn, x));
+define function inc(x) = x + 1;
+
+applyTwice(ref(inc), 10)

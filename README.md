@@ -70,6 +70,8 @@ Built-in helpers:
 - `call(functionRef, ...args)` calls a function reference.
 - `closure(functionRef, ...capturedArgs)` creates a closure with captured arguments.
 
+More complete examples (including Newton's method and gradient descent) are available in the `examples/` folder.
+
 * Definition of Operators: \
 `define operator(<precedence>) <name>(left, right) = <expression>;`
 ```
