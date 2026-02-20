@@ -15,6 +15,8 @@ namespace AMLBS
 
         internal Dictionary<string, FunctionDefinition> functions = new();
         internal Dictionary<string, NativeFunctionDefinition> nativeFunctions = new();
+        internal Dictionary<int, HigherOrderFunctionDefinition> higherOrderFunctions = new();
+        private int currentFunctionReferenceId = 1;
 
         internal Dictionary<string, OperatorDefinition> operators = new();
         internal Dictionary<string, NativeOperatorDefinition> nativeOperators = new();
@@ -34,6 +36,88 @@ namespace AMLBS
         public void DefineNativeFunction(string funName, int parametersCount, NativeCall nativeCall)
         {
             nativeFunctions.Add(funName, new(parametersCount, nativeCall));
+        }
+
+        internal double CreateFunctionReference(string functionName,
+                                                List<double>? boundParameters = null)
+        {
+            if (!functions.ContainsKey(functionName) && !nativeFunctions.ContainsKey(functionName))
+                throw new Exception($"Function name {functionName} not defined");
+
+            int referenceId = currentFunctionReferenceId++;
+            higherOrderFunctions[referenceId] =
+                new(functionName, boundParameters ?? new List<double>());
+
+            return referenceId;
+        }
+
+        internal double CreateClosure(double functionReference,
+                                      List<double> boundParameters)
+        {
+            int baseReferenceId = Convert.ToInt32(functionReference);
+
+            if (!higherOrderFunctions.ContainsKey(baseReferenceId))
+                throw new Exception($"Function reference {functionReference} is not valid");
+
+            HigherOrderFunctionDefinition functionDefinition = higherOrderFunctions[baseReferenceId];
+
+            List<double> capturedParameters = new(functionDefinition.BoundParameters);
+            capturedParameters.AddRange(boundParameters);
+
+            int closureReferenceId = currentFunctionReferenceId++;
+            higherOrderFunctions[closureReferenceId] =
+                new(functionDefinition.FunctionName, capturedParameters);
+
+            return closureReferenceId;
+        }
+
+        internal double InvokeFunctionReference(double functionReference,
+                                                List<double> parameters)
+        {
+            int referenceId = Convert.ToInt32(functionReference);
+
+            if (!higherOrderFunctions.ContainsKey(referenceId))
+                throw new Exception($"Function reference {functionReference} is not valid");
+
+            HigherOrderFunctionDefinition functionDefinition = higherOrderFunctions[referenceId];
+            List<double> allParameters = new(functionDefinition.BoundParameters);
+            allParameters.AddRange(parameters);
+
+            return InvokeFunction(functionDefinition.FunctionName, allParameters);
+        }
+
+        internal double InvokeFunction(string funName,
+                                       List<double> parameters)
+        {
+            if (functions.ContainsKey(funName))
+            {
+                FunctionDefinition functionDefinition = functions[funName];
+
+                if (parameters.Count != functionDefinition.ParametersCount)
+                    throw new Exception($"function {funName} " +
+                        $"expected {functionDefinition.ParametersCount} parameter " +
+                        $"but found {parameters.Count}");
+
+                List<Token> functionExpression = new(functionDefinition.tokens);
+                ExpressionParametersReplacer.ReplaceEvalParameters(parameters, functionExpression);
+
+                return (double)Eval(functionExpression);
+            }
+
+            if (nativeFunctions.ContainsKey(funName))
+            {
+                NativeFunctionDefinition nativeDefinition = nativeFunctions[funName];
+
+                if (nativeDefinition.ParametersCount >= 0
+                    && parameters.Count != nativeDefinition.ParametersCount)
+                    throw new Exception($"native function {funName} " +
+                        $"expected {nativeDefinition.ParametersCount} parameter " +
+                        $"but found {parameters.Count}");
+
+                return nativeDefinition.NativeCall(parameters.ToArray());
+            }
+
+            throw new Exception($"Function name {funName} not defined");
         }
 
         public void DefineNativeOperator(string opName, int precedence, NativeOperatorCall nativeCall)

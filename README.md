@@ -51,6 +51,25 @@ define function fib(x) =
   );
 ```
 
+* High-Order Functions and Closures:
+```
+define function applyTwice(fn, x) = call(fn, call(fn, x));
+define function inc(x) = x + 1;
+applyTwice(ref(inc), 5)
+```
+
+```
+define function add(a, b) = a + b;
+define function makeAdder(base) = closure(ref(add), base);
+define const add10 = makeAdder(10);
+call(add10, 7)
+```
+
+Built-in helpers:
+- `ref(functionName)` gets a function reference.
+- `call(functionRef, ...args)` calls a function reference.
+- `closure(functionRef, ...capturedArgs)` creates a closure with captured arguments.
+
 * Definition of Operators: \
 `define operator(<precedence>) <name>(left, right) = <expression>;`
 ```
